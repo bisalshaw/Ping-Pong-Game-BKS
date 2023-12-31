@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        canvas {
+            border: 1px solid #000;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+    <title>Vanilla JavaScript Ping Pong Game</title>
+</head>
+<body>
+    <canvas id="pongCanvas" width="800" height="400"></canvas>
+
+    <script>
+        // Get the canvas and context
+        const canvas = document.getElementById('pongCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Create the paddle
+        const paddleWidth = 10, paddleHeight = 60;
+        let leftPaddleY = (canvas.height - paddleHeight) / 2;
+        let rightPaddleY = (canvas.height - paddleHeight) / 2;
+
+        // Create the ball
+        let ballX = canvas.width / 2, ballY = canvas.height / 2;
+        let ballSpeedX = 5, ballSpeedY = 5;
+
+        // Draw function
+        function draw() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw paddles
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, leftPaddleY, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth, rightPaddleY, paddleWidth, paddleHeight);
+
+            // Draw ball
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+            ctx.fillStyle = '#000';
+            ctx.fill();
+            ctx.closePath();
+
+            // Update ball position
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Bounce off top and bottom walls
+            if (ballY + 8 > canvas.height || ballY - 8 < 0) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Bounce off paddles
+            if (
+                (ballX - 8 < paddleWidth && ballY > leftPaddleY && ballY < leftPaddleY + paddleHeight) ||
+                (ballX + 8 > canvas.width - paddleWidth && ballY > rightPaddleY && ballY < rightPaddleY + paddleHeight)
+            ) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Reset ball position if it goes out of bounds
+            if (ballX < 0 || ballX > canvas.width) {
+                ballX = canvas.width / 2;
+                ballY = canvas.height / 2;
+            }
+
+            // Move right paddle based on ball position
+            if (rightPaddleY + paddleHeight / 2 < ballY - 15) {
+                rightPaddleY += 5;
+            } else if (rightPaddleY + paddleHeight / 2 > ballY + 15) {
+                rightPaddleY -= 5;
+            }
+
+            // Call draw function again
+            requestAnimationFrame(draw);
+        }
+
+        // Handle mouse movement to control left paddle
+        function handleMouseMove(event) {
+            const mouseY = event.clientY - canvas.offsetTop;
+            leftPaddleY = mouseY - paddleHeight / 2;
+        }
+
+        // Add event listener for mouse movement
+        canvas.addEventListener('mousemove', handleMouseMove);
+
+        // Start the game loop
+        draw();
+    </script>
+</body>
+</html>
